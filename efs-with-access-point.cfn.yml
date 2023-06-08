@@ -85,15 +85,14 @@ Resources:
     Properties:
       FileSystemId: !Ref EfsFileSystem
       PosixUser:
-        Uid: '1001'
-        Gid: '1001'
-        SecondaryGids:
-          - '1002'
-          - '1003'
+        Uid: '2001'
+        Gid: '2001'
+        # SecondaryGids:
+        #   - '2002'
       RootDirectory:
         CreationInfo:
-          OwnerGid: '1001'
-          OwnerUid: '1001'
+          OwnerGid: '2001'
+          OwnerUid: '2001'
           Permissions: '0755'
         Path: /accesspoint
       AccessPointTags:
