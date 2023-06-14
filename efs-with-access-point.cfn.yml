@@ -52,7 +52,7 @@ Resources:
           SourceSecurityGroupId:
             Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
       VpcId:
-        Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-VPC
+        Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-Vpc
       Tags:
         - Key: Name
           Value: !Sub ${ProjectName}-efs-security-group
