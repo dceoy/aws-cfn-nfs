@@ -40,6 +40,8 @@ Resources:
       FileSystemTags:
         - Key: Name
           Value: !Sub ${ProjectName}-efs-filesystem
+        - Key: ProjectName
+          Value: !Ref ProjectName
   EfsSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -56,6 +58,8 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub ${ProjectName}-efs-security-group
+        - Key: ProjectName
+          Value: !Ref ProjectName
   EfsMountTarget0:
     Type: AWS::EFS::MountTarget
     Properties:
@@ -96,6 +100,8 @@ Resources:
       AccessPointTags:
         - Key: Name
           Value: !Sub ${ProjectName}-efs-accesspoint
+        - Key: ProjectName
+          Value: !Ref ProjectName
 Outputs:
   EfsFileSystem:
     Value: !Ref EfsFileSystem
