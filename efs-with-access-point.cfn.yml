@@ -96,7 +96,7 @@ Resources:
           OwnerGid: '10000'
           OwnerUid: '10000'
           Permissions: '0755'
-        Path: !Sub /${ProjectName}
+        Path: !Sub /${ProjectName}-efs-accesspoint
       AccessPointTags:
         - Key: Name
           Value: !Sub ${ProjectName}-efs-accesspoint
