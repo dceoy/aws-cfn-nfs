@@ -1,0 +1,225 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: FSx for NetApp ONTAP file system
+Parameters:
+  VpcStackName:
+    Description: Set the VPC stack name.
+    Type: String
+    Default: vpc-private-subnets-with-gateway-endpoints
+  ProjectName:
+    Description: Set the project name.
+    Type: String
+    Default: nfs
+  StorageCapacity:
+    Description: Set the storage capacity.
+    Type: Number
+    Default: 1024
+  ThroughputCapacity:
+    Description: Set the throughput capacity.
+    Type: Number
+    Default: 128
+  AutomaticBackupRetentionDays:
+    Description: Set the automatic backup retention days.
+    Type: Number
+    Default: 30
+  DailyAutomaticBackupStartTime:
+    Description: Set the daily automatic backup start time.
+    Type: String
+    Default: 07:00
+  WeeklyMaintenanceStartTime:
+    Description: Set the weekly maintenance start time.
+    Type: String
+    Default: 4:16:30
+Resources:
+  FsxForNetappOntapFileSystem:
+    Type: AWS::FSx::FileSystem
+    # DeletionPolicy: Retain
+    # UpdateReplacePolicy: Retain
+    Properties:
+      FileSystemType: ONTAP
+      StorageType: SSD
+      StorageCapacity: !Ref StorageCapacity
+      # KmsKeyId: String
+      OntapConfiguration:
+        DeploymentType: MULTI_AZ_1  # MULTI_AZ_1 | SINGLE_AZ_1
+        DiskIopsConfiguration:
+          Mode: AUTOMATIC   # AUTOMATIC | USER_PROVISIONED
+          # Iops: 3072
+        ThroughputCapacity: !Ref ThroughputCapacity
+        PreferredSubnetId:
+          Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet0
+        RouteTableIds:
+          - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateRouteTable0
+          - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateRouteTable1
+        # EndpointIpAddressRange: String
+        # FsxAdminPassword: String
+        AutomaticBackupRetentionDays: !Ref AutomaticBackupRetentionDays
+        DailyAutomaticBackupStartTime: !Ref DailyAutomaticBackupStartTime
+        WeeklyMaintenanceStartTime: !Ref WeeklyMaintenanceStartTime
+      SecurityGroupIds:
+        - !Ref FsxForNetappOntapSecurityGroup
+      SubnetIds:  # At most 2 subnets are allowed.
+        - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet0
+        - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet1
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-fsx-for-netapp-ontap
+        - Key: ProjectName
+          Value: !Ref ProjectName
+  FsxForNetappOntapSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub ${ProjectName}-fsx-for-netapp-ontap-security-group
+      GroupDescription: Security group of Amazon FSx for NetApp ONTAP
+      SecurityGroupIngress:
+        - IpProtocol: icmp
+          FromPort: -1
+          ToPort: -1
+          SourceSecurityGroupId:
+            Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          SourceSecurityGroupId:
+            Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+        - IpProtocol: tcp
+          FromPort: 111
+          ToPort: 111
+          SourceSecurityGroupId:
+            Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+        - IpProtocol: tcp
+          FromPort: 135
+          ToPort: 135
+          SourceSecurityGroupId:
+            Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+        - IpProtocol: tcp
+          FromPort: 139
+          ToPort: 139
+          SourceSecurityGroupId:
+            Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+        - IpProtocol: tcp
+          FromPort: 161
+          ToPort: 162
+          SourceSecurityGroupId:
+            Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          SourceSecurityGroupId:
+            Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+        - IpProtocol: tcp
+          FromPort: 445
+          ToPort: 445
+          SourceSecurityGroupId:
+            Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+        - IpProtocol: tcp
+          FromPort: 635
+          ToPort: 635
+          SourceSecurityGroupId:
+            Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+        - IpProtocol: tcp
+          FromPort: 749
+          ToPort: 749
+          SourceSecurityGroupId:
+            Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+        - IpProtocol: tcp
+          FromPort: 2049
+          ToPort: 2049
+          SourceSecurityGroupId:
+            Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+        - IpProtocol: tcp
+          FromPort: 3260
+          ToPort: 3260
+          SourceSecurityGroupId:
+            Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+        - IpProtocol: tcp
+          FromPort: 4045
+          ToPort: 4045
+          SourceSecurityGroupId:
+            Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+        - IpProtocol: tcp
+          FromPort: 4046
+          ToPort: 4046
+          SourceSecurityGroupId:
+            Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+        - IpProtocol: tcp
+          FromPort: 10000
+          ToPort: 10000
+          SourceSecurityGroupId:
+            Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+        - IpProtocol: tcp
+          FromPort: 11104
+          ToPort: 11104
+          SourceSecurityGroupId:
+            Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+        - IpProtocol: tcp
+          FromPort: 11105
+          ToPort: 11105
+          SourceSecurityGroupId:
+            Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+        - IpProtocol: udp
+          FromPort: 111
+          ToPort: 111
+          SourceSecurityGroupId:
+            Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+        - IpProtocol: udp
+          FromPort: 135
+          ToPort: 135
+          SourceSecurityGroupId:
+            Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+        - IpProtocol: udp
+          FromPort: 137
+          ToPort: 137
+          SourceSecurityGroupId:
+            Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+        - IpProtocol: udp
+          FromPort: 139
+          ToPort: 139
+          SourceSecurityGroupId:
+            Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+        - IpProtocol: udp
+          FromPort: 161
+          ToPort: 162
+          SourceSecurityGroupId:
+            Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+        - IpProtocol: udp
+          FromPort: 635
+          ToPort: 635
+          SourceSecurityGroupId:
+            Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+        - IpProtocol: udp
+          FromPort: 2049
+          ToPort: 2049
+          SourceSecurityGroupId:
+            Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+        - IpProtocol: udp
+          FromPort: 4045
+          ToPort: 4045
+          SourceSecurityGroupId:
+            Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+        - IpProtocol: udp
+          FromPort: 4046
+          ToPort: 4046
+          SourceSecurityGroupId:
+            Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+        - IpProtocol: udp
+          FromPort: 4049
+          ToPort: 4049
+          SourceSecurityGroupId:
+            Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+      VpcId:
+        Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-Vpc
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-fsx-for-netapp-ontap-security-group
+        - Key: ProjectName
+          Value: !Ref ProjectName
+Outputs:
+  FsxForNetappOntapFileSystem:
+    Value: !Ref FsxForNetappOntapFileSystem
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-FsxForNetappOntapFileSystem
+  FsxForNetappOntapSecurityGroup:
+    Value: !Ref FsxForNetappOntapSecurityGroup
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-FsxForNetappOntapSecurityGroup

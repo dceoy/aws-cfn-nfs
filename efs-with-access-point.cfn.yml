@@ -20,6 +20,7 @@ Resources:
         Status: ENABLED
       BypassPolicyLockoutSafetyCheck: false
       Encrypted: true
+      # KmsKeyId: String
       FileSystemPolicy:
         Version: 2012-10-17
         Statement:
@@ -54,9 +55,9 @@ Resources:
       GroupName: !Sub ${ProjectName}-efs-security-group
       GroupDescription: EFS security group
       SecurityGroupIngress:
-        - FromPort: 2049
+        - IpProtocol: tcp
+          FromPort: 2049
           ToPort: 2049
-          IpProtocol: tcp
           SourceSecurityGroupId:
             Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
       VpcId:
