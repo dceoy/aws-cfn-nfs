@@ -17,9 +17,7 @@ Installation
 
 2.  Install [Rain](https://github.com/aws-cloudformation/rain) and set `~/.aws/config` and `~/.aws/credentials`.
 
-3.  Set a Slack client on AWS Chatbot and get the Slack workspace ID. (optional)
-
-4.  Deploy stacks for VPC.
+3.  Deploy stacks for VPC.
 
     ```sh
     $ rain deploy \
@@ -28,7 +26,7 @@ Installation
         nfs-dev-vpc-private-subnets-with-gateway-endpoints
     ```
 
-5.  Deploy stacks for EFS.
+4.  Deploy stacks for EFS.
 
     ```sh
     $ rain deploy \
